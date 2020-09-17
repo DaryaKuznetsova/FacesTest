@@ -24,9 +24,41 @@ namespace FacesTest.Services
 
         public async Task<Face> GetFace(long personId, long faceId)
         {
-            var face = await _context.Faces.FindAsync(faceId);
-            if (face.PersonId == personId) return face;
-            else return null; 
+            var face = await _context.Faces.Where(e => e.Id == faceId && e.PersonId == personId).ToListAsync();
+            if (face.Count!=0) return face[0]; else return null;
+        }
+
+        public async Task PostFace(long personId, Face face)
+        {
+            face.PersonId = personId;
+            _context.Faces.Add(face);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task PutFace(Face face)
+        {
+            _context.Entry(face).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        public bool FaceExists(long personId, long id)
+        {
+            return _context.Faces.Any(e => e.Id == id&& e.PersonId==personId);
+        }
+
+        public async Task<Face> DeleteFace(long id)
+        {
+            var face = await _context.Faces.FindAsync(id);
+            try
+            {
+                _context.Faces.Remove(face);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+
+            }
+            return face;
         }
     }
 }
