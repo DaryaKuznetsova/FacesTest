@@ -10,24 +10,33 @@ using FacesTest.Services;
 
 namespace FacesTest.Controllers
 {
-    [Route("api/People")]
+    [Route("api/Person")]
     [ApiController]
     public class PeopleController : ControllerBase
     {
         private readonly FacesContext _context;
         private readonly PersonService _personService;
+        private readonly FaceService _faceService;
 
         public PeopleController(FacesContext context)
         {
             _context = context;
             _personService = new PersonService(context);
+            _faceService = new FaceService(context);
 
-            if (!_context.People.Any())
-            {
-                _context.People.Add(new Person { Name = "Tom" });
-                _context.People.Add(new Person { Name = "Alice" });
-                _context.SaveChanges();
-            }
+            //if (!_context.People.Any())
+            //{
+            //    _context.People.Add(new Person { Name = "Tom" });
+            //    _context.People.Add(new Person { Name = "Alice" });
+            //    _context.SaveChanges();
+            //}
+            //if (!_context.Faces.Any())
+            //{
+            //    _context.Faces.Add(new Face { PersonId = 1 });
+            //    _context.Faces.Add(new Face { PersonId = 1 });
+            //    _context.Faces.Add(new Face { PersonId = 2 });
+            //    _context.SaveChanges();
+            //}
         }
 
 
@@ -35,7 +44,7 @@ namespace FacesTest.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Person>>> GetPerson()
         {
-            return await _personService.GetPerson();
+           return await _personService.GetPerson();
         }
 
         // GET: api/People/5
@@ -51,6 +60,12 @@ namespace FacesTest.Controllers
 
             return person;
         }
+
+        //[HttpGet("{id}/face")]
+        //public async Task<ActionResult<IEnumerable<Face>>> GetFace(long personId)
+        //{
+        //    return await _faceService.GetFaces(personId);
+        //}
 
 
         // PUT: api/People/5
@@ -101,6 +116,7 @@ namespace FacesTest.Controllers
 
             return NoContent();
         }
+
 
     }
 }
