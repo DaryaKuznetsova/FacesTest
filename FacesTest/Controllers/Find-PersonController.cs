@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FacesTest.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/find-person")]
     [ApiController]
     public class Find_PersonController : ControllerBase
     {
@@ -26,16 +26,15 @@ namespace FacesTest.Controllers
         [HttpPost]
         public async Task<ActionResult<Person>> PostFace(IFormFile face)
         {
-            //Person person = new Person { Name = pvm.Name };
             if (face != null)
             {
                 byte[] imageData = null;
-                // считываем переданный файл в массив байтов
+                // read file to byte array
                 using (var binaryReader = new BinaryReader(face.OpenReadStream()))
                 {
                     imageData = binaryReader.ReadBytes((int)face.Length);
                 }
-                // установка массива байтов
+                // find person
                 var person = await _faceService.FindPerson(imageData);
                 if (person != null) return person; else return NotFound();
             }

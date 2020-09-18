@@ -15,7 +15,5 @@ namespace FacesTest.Models
         {
             Database.EnsureCreated();
         }
-
-
     }
 }

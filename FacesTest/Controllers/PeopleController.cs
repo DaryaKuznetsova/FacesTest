@@ -100,9 +100,6 @@ namespace FacesTest.Controllers
 
         // api/People
         [HttpPost]
-       // [ResponseType(typeof(PersonDto))]
-        [ProducesResponseType(typeof(PersonDto), 201)]
-        [ProducesResponseType(typeof(PersonDto), 400)]
         public async Task<ActionResult<Person>> PostPerson(PersonDto person)
         {
             if (!ModelState.IsValid)

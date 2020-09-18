@@ -19,11 +19,13 @@ namespace FacesTest.Controllers
     {
         private readonly FacesContext _context;
         private readonly FaceService _faceService;
+        private readonly PersonService _personService;
 
         public FacesController(FacesContext context)
         {
             _context = context;
             _faceService = new FaceService(context);
+            _personService = new PersonService(context);
 
             if (!_context.Faces.Any())
             {
@@ -35,27 +37,20 @@ namespace FacesTest.Controllers
         }
 
         //GET: api/Person/id/face
-        public async Task<ActionResult<IEnumerable<Face>>> GetFace(long personId)
+        public async Task<ActionResult<IEnumerable<FaceDto>>> GetFace(long personId)
         {
             return await _faceService.GetFaces(personId);
         }
 
         //GET: api/person/id/face/id
         [HttpGet("{faceId}")]
-        public async Task<ActionResult<Face>> GetFace(long personId, long faceId)
+        public async Task<ActionResult<FaceDto>> GetFace(long personId, long faceId)
         {
             var face = await _faceService.GetFace(personId, faceId);
             if (face == null) return NotFound();
             else return face;
         }
 
-        //// api/person/id/face
-        //[HttpPost]
-        //public async Task<ActionResult<Face>> PostFace(long personId, Face face)
-        //{
-        //    await _faceService.PostFace(personId, face);
-        //    return CreatedAtAction(nameof(GetFace), new { personId = face.PersonId }, face);
-        //}
 
         [HttpPut("{faceId}")]
         public async Task<IActionResult> PutPerson(long personId, long faceId, Face face)
@@ -98,51 +93,28 @@ namespace FacesTest.Controllers
             else return BadRequest();
         }
 
-        //[HttpPost]
-        //[ProducesResponseType(typeof(FaceDto), 201)]
-        //[ProducesResponseType(typeof(FaceDto), 400)]
-        //public async Task<ActionResult<Face>> PostFace(long personId, FaceDto face)
-        //{
-        //    Face trueFace = new Face()
-        //    {
-        //        PersonId = personId
-        //    };
-        //    //Person person = new Person { Name = pvm.Name };
-        //    if (face.Picture != null)
-        //    {
-        //        byte[] imageData = null;
-        //        // считываем переданный файл в массив байтов
-        //        using (var binaryReader = new BinaryReader(face.Picture.OpenReadStream()))
-        //        {
-        //            imageData = binaryReader.ReadBytes((int)face.Picture.Length);
-        //        }
-        //        // установка массива байтов
-        //        trueFace.Picture = imageData;
-        //    }
-        //    await _faceService.PostFace(personId, trueFace);
-        //    return CreatedAtAction(nameof(GetFace), new { personId = face.PersonId }, trueFace);
-        //}
-
         [HttpPost]
-        [ProducesResponseType(typeof(FaceDto), 201)]
-        [ProducesResponseType(typeof(FaceDto), 400)]
         public async Task<ActionResult<Face>> PostFace(long personId, IFormFile face)
         {
-            Face trueFace = new Face();
-            //Person person = new Person { Name = pvm.Name };
-            if (face != null)
+            if(_personService.PersonExists(personId))
             {
-                byte[] imageData = null;
-                // считываем переданный файл в массив байтов
-                using (var binaryReader = new BinaryReader(face.OpenReadStream()))
+                Face trueFace = new Face();
+                //Person person = new Person { Name = pvm.Name };
+                if (face != null)
                 {
-                    imageData = binaryReader.ReadBytes((int)face.Length);
+                    byte[] imageData = null;
+                    // считываем переданный файл в массив байтов
+                    using (var binaryReader = new BinaryReader(face.OpenReadStream()))
+                    {
+                        imageData = binaryReader.ReadBytes((int)face.Length);
+                    }
+                    // установка массива байтов
+                    trueFace.Picture = imageData;
                 }
-                // установка массива байтов
-                trueFace.Picture = imageData;
+                var faceDto = await _faceService.PostFace(personId, trueFace);
+                return CreatedAtAction(nameof(GetFace), new { personId = trueFace.PersonId }, faceDto);
             }
-            await _faceService.PostFace(personId, trueFace);
-            return CreatedAtAction(nameof(GetFace), new { personId = trueFace.PersonId }, trueFace);
+            return BadRequest();
         }
     }
 }

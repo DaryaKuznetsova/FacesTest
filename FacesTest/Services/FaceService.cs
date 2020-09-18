@@ -1,8 +1,10 @@
-﻿using FacesTest.Models;
+﻿using FacesTest.DTOs;
+using FacesTest.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
@@ -17,22 +19,39 @@ namespace FacesTest.Services
             _context = context;
         }
 
-        public async Task<List<Face>> GetFaces(long personId)
+        private static readonly Expression<Func<Face, FaceDto>> AsFaceDto =
+        x => new FaceDto
         {
-            return await _context.Faces.Where(e => e.PersonId == personId).ToListAsync();
+            Id = x.Id,
+            PersonId = x.PersonId
+        };
+
+        private static FaceDto FaceDto(Face face)
+        {
+            return new FaceDto
+            {
+                Id = face.Id,
+                PersonId = face.PersonId
+            };
         }
 
-        public async Task<Face> GetFace(long personId, long faceId)
+        public async Task<List<FaceDto>> GetFaces(long personId)
         {
-            var face = await _context.Faces.Where(e => e.Id == faceId && e.PersonId == personId).ToListAsync();
-            if (face.Count!=0) return face[0]; else return null;
+            return await _context.Faces.Where(e => e.PersonId == personId).Select(AsFaceDto).ToListAsync();
         }
 
-        public async Task PostFace(long personId, Face face)
+        public async Task<FaceDto> GetFace(long personId, long faceId)
+        {
+            var face = await _context.Faces.Where(e => e.Id == faceId && e.PersonId == personId).Select(AsFaceDto).ToListAsync();
+            if (face.Count != 0) return face[0]; else return null;
+        }
+
+        public async Task<FaceDto> PostFace(long personId, Face face)
         {
             face.PersonId = personId;
             _context.Faces.Add(face);
             await _context.SaveChangesAsync();
+            return FaceDto(face);
         }
 
         public async Task PutFace(Face face)
@@ -43,7 +62,7 @@ namespace FacesTest.Services
 
         public bool FaceExists(long personId, long id)
         {
-            return _context.Faces.Any(e => e.Id == id&& e.PersonId==personId);
+            return _context.Faces.Any(e => e.Id == id && e.PersonId == personId);
         }
 
         public async Task<Face> DeleteFace(long id)

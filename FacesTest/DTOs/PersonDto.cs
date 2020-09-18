@@ -9,8 +9,11 @@ namespace FacesTest.DTOs
     public class PersonDto
     {
         public long Id { get; set; }
+        [Required]
         public string Name { get; set; }
+        [Required]
         public string Surname { get; set; }
+        [Required]
         public string MiddleName { get; set; }
     }
 }
