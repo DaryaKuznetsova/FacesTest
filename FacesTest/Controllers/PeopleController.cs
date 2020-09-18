@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FacesTest.Models;
 using FacesTest.Services;
+using FacesTest.DTOs;
+//using System.Web.Http.Description;
 
 namespace FacesTest.Controllers
 {
@@ -42,7 +44,7 @@ namespace FacesTest.Controllers
 
         // GET: api/People
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Person>>> GetPerson()
+        public async Task<ActionResult<IEnumerable<PersonDto>>> GetPerson()
         {
            return await _personService.GetPerson();
         }
@@ -98,8 +100,15 @@ namespace FacesTest.Controllers
 
         // api/People
         [HttpPost]
-        public async Task<ActionResult<Person>> PostPerson(Person person)
+       // [ResponseType(typeof(PersonDto))]
+        [ProducesResponseType(typeof(PersonDto), 201)]
+        [ProducesResponseType(typeof(PersonDto), 400)]
+        public async Task<ActionResult<Person>> PostPerson(PersonDto person)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             await _personService.PostPerson(person);
             return CreatedAtAction(nameof(GetPerson), new { id = person.Id }, person);
         }

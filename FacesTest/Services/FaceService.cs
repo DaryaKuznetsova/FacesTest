@@ -60,5 +60,15 @@ namespace FacesTest.Services
             }
             return face;
         }
+
+        public async Task<Person> FindPerson(byte[] face)
+        {
+            var res = await _context.Faces.Where(x => x.Picture == face).ToListAsync();
+            if (res.Count != 0)
+            {
+                return await _context.People.FindAsync(res[0].PersonId);
+            }
+            else return null;
+        }
     }
 }

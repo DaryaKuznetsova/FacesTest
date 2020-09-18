@@ -1,9 +1,11 @@
-﻿using FacesTest.Models;
+﻿using FacesTest.DTOs;
+using FacesTest.Models;
 using Microsoft.EntityFrameworkCore;
 using SQLitePCL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace FacesTest.Services
@@ -11,13 +13,23 @@ namespace FacesTest.Services
     public class PersonService
     {
         private readonly FacesContext _context;
+
+        private static readonly Expression<Func<Person, PersonDto>> AsPersonDto =
+    x => new PersonDto
+    {
+        Id = x.Id,
+        Surname = x.Surname,
+        Name = x.Name,
+        MiddleName = x.MiddleName
+    };
+
         public PersonService(FacesContext context)
         {
             _context = context;
         }
-        public async Task<List<Person>> GetPerson()
+        public async Task<List<PersonDto>> GetPerson()
         {
-            return await _context.People.ToListAsync();
+            return await _context.People.Select(AsPersonDto).ToListAsync();
         }
 
         public async Task<Person> GetPerson(long id)
@@ -38,9 +50,13 @@ namespace FacesTest.Services
             return _context.People.Any(e => e.Id == id);
         }
 
-        public async Task PostPerson(Person person)
+        public async Task PostPerson(PersonDto person)
         {
-            _context.People.Add(person);
+            var p = new Person()
+            {
+                Name = person.Name,
+            };
+            _context.People.Add(p );
             await _context.SaveChangesAsync();
         }
 

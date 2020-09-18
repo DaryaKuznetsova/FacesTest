@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FacesTest.DTOs;
 using FacesTest.Models;
 using FacesTest.Services;
 using Microsoft.AspNetCore.Http;
@@ -47,13 +49,13 @@ namespace FacesTest.Controllers
             else return face;
         }
 
-        // api/person/id/face
-        [HttpPost]
-        public async Task<ActionResult<Face>> PostFace(long personId, Face face)
-        {
-            await _faceService.PostFace(personId, face);
-            return CreatedAtAction(nameof(GetFace), new { personId = face.PersonId }, face);
-        }
+        //// api/person/id/face
+        //[HttpPost]
+        //public async Task<ActionResult<Face>> PostFace(long personId, Face face)
+        //{
+        //    await _faceService.PostFace(personId, face);
+        //    return CreatedAtAction(nameof(GetFace), new { personId = face.PersonId }, face);
+        //}
 
         [HttpPut("{faceId}")]
         public async Task<IActionResult> PutPerson(long personId, long faceId, Face face)
@@ -94,6 +96,53 @@ namespace FacesTest.Controllers
                 return NoContent();
             }
             else return BadRequest();
+        }
+
+        //[HttpPost]
+        //[ProducesResponseType(typeof(FaceDto), 201)]
+        //[ProducesResponseType(typeof(FaceDto), 400)]
+        //public async Task<ActionResult<Face>> PostFace(long personId, FaceDto face)
+        //{
+        //    Face trueFace = new Face()
+        //    {
+        //        PersonId = personId
+        //    };
+        //    //Person person = new Person { Name = pvm.Name };
+        //    if (face.Picture != null)
+        //    {
+        //        byte[] imageData = null;
+        //        // считываем переданный файл в массив байтов
+        //        using (var binaryReader = new BinaryReader(face.Picture.OpenReadStream()))
+        //        {
+        //            imageData = binaryReader.ReadBytes((int)face.Picture.Length);
+        //        }
+        //        // установка массива байтов
+        //        trueFace.Picture = imageData;
+        //    }
+        //    await _faceService.PostFace(personId, trueFace);
+        //    return CreatedAtAction(nameof(GetFace), new { personId = face.PersonId }, trueFace);
+        //}
+
+        [HttpPost]
+        [ProducesResponseType(typeof(FaceDto), 201)]
+        [ProducesResponseType(typeof(FaceDto), 400)]
+        public async Task<ActionResult<Face>> PostFace(long personId, IFormFile face)
+        {
+            Face trueFace = new Face();
+            //Person person = new Person { Name = pvm.Name };
+            if (face != null)
+            {
+                byte[] imageData = null;
+                // считываем переданный файл в массив байтов
+                using (var binaryReader = new BinaryReader(face.OpenReadStream()))
+                {
+                    imageData = binaryReader.ReadBytes((int)face.Length);
+                }
+                // установка массива байтов
+                trueFace.Picture = imageData;
+            }
+            await _faceService.PostFace(personId, trueFace);
+            return CreatedAtAction(nameof(GetFace), new { personId = trueFace.PersonId }, trueFace);
         }
     }
 }
