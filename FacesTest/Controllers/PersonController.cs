@@ -80,19 +80,19 @@ namespace FacesTest.Controllers
 
         // POST: localhost:44376/api/person
         [HttpPost]
-        public async Task<ActionResult<Person>> PostPerson(PersonDto person)
+        public async Task<ActionResult<PersonDto>> PostPerson(PersonDto person)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            await _personService.PostPerson(person);
+            person = await _personService.PostPerson(person);
             return CreatedAtAction(nameof(GetPerson), new { id = person.Id }, person);
         }
 
         // DELETE: localhost:44376/api/person/1
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Person>> DeletePerson(long id)
+        public async Task<ActionResult<PersonDto>> DeletePerson(long id)
         {
             var person = await _personService.DeletePerson(id);
             if (person == null)

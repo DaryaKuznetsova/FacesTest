@@ -24,6 +24,18 @@ namespace FacesTest.Services
         MiddleName = x.MiddleName
     };
 
+        private static PersonDto PersonDto(Person person)
+        {
+            PersonDto dto = new PersonDto
+            {
+                Id = person.Id,
+                Surname = person.Surname,
+                Name = person.Name,
+                MiddleName = person.MiddleName
+            };
+            return dto;
+        }
+
         public PersonService(FacesContext context)
         {
             _context = context;
@@ -54,14 +66,17 @@ namespace FacesTest.Services
             return _context.People.Any(e => e.Id == id);
         }
 
-        public async Task PostPerson(PersonDto person)
+        public async Task<PersonDto> PostPerson(PersonDto personDto)
         {
-            var p = new Person()
+            var person = new Person()
             {
-                Name = person.Name,
+                Name = personDto.Name,
+                Surname = personDto.Surname,
+                MiddleName = personDto.MiddleName
             };
-            _context.People.Add(p );
+            _context.People.Add(person );
             await _context.SaveChangesAsync();
+            return PersonDto(person);
         }
 
         public async Task<Person> DeletePerson(long id)

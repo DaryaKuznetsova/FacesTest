@@ -25,15 +25,15 @@ namespace FacesTest.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<PersonDto>> PostFace(IFormFile face)
+        public async Task<ActionResult<PersonDto>> PostFace(IFormFile filePicture)
         {
-            if (face != null)
+            if (filePicture != null)
             {
                 byte[] imageData = null;
                 // read file to byte array
-                using (var binaryReader = new BinaryReader(face.OpenReadStream()))
+                using (var binaryReader = new BinaryReader(filePicture.OpenReadStream()))
                 {
-                    imageData = binaryReader.ReadBytes((int)face.Length);
+                    imageData = binaryReader.ReadBytes((int)filePicture.Length);
                 }
                 // find person
                 var person = await _personService.FindPerson(imageData);

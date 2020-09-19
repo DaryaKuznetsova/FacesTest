@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace FacesTest.DTOs
 {
     public class PersonDto
-    {
+    {    
         public long Id { get; set; }
         [Required]
         public string Surname { get; set; }
