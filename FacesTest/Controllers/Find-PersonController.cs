@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FacesTest.DTOs;
 using FacesTest.Models;
 using FacesTest.Services;
 using Microsoft.AspNetCore.Http;
@@ -15,16 +16,16 @@ namespace FacesTest.Controllers
     public class Find_PersonController : ControllerBase
     {
         private readonly FacesContext _context;
-        private readonly FaceService _faceService;
+        private readonly PersonService _personService;
 
         public Find_PersonController(FacesContext context)
         {
             _context = context;
-            _faceService = new FaceService(context);
+            _personService = new PersonService(context);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Person>> PostFace(IFormFile face)
+        public async Task<ActionResult<PersonDto>> PostFace(IFormFile face)
         {
             if (face != null)
             {
@@ -35,7 +36,7 @@ namespace FacesTest.Controllers
                     imageData = binaryReader.ReadBytes((int)face.Length);
                 }
                 // find person
-                var person = await _faceService.FindPerson(imageData);
+                var person = await _personService.FindPerson(imageData);
                 if (person != null) return person; else return NotFound();
             }
             return BadRequest();

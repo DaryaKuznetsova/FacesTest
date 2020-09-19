@@ -15,34 +15,27 @@ namespace FacesTest.Controllers
 {
     [Route("api/person/{personId}/[controller]")]
     [ApiController]
-    public class FacesController : ControllerBase
+    public class FaceController : ControllerBase
     {
         private readonly FacesContext _context;
+        // Class containing methods for working with Face
         private readonly FaceService _faceService;
         private readonly PersonService _personService;
 
-        public FacesController(FacesContext context)
+        public FaceController(FacesContext context)
         {
             _context = context;
             _faceService = new FaceService(context);
             _personService = new PersonService(context);
-
-            if (!_context.Faces.Any())
-            {
-                _context.Faces.Add(new Face { PersonId = 1 });
-                _context.Faces.Add(new Face { PersonId = 1 });
-                _context.Faces.Add(new Face { PersonId = 2 });
-                _context.SaveChanges();
-            }
         }
 
-        //GET: api/Person/id/face
+        //GET: localhost:44376/api/person/1/face
         public async Task<ActionResult<IEnumerable<FaceDto>>> GetFace(long personId)
         {
             return await _faceService.GetFaces(personId);
         }
 
-        //GET: api/person/id/face/id
+        //GET: localhost:44376/api/person/1/face/36
         [HttpGet("{faceId}")]
         public async Task<ActionResult<FaceDto>> GetFace(long personId, long faceId)
         {
@@ -53,7 +46,7 @@ namespace FacesTest.Controllers
 
 
         [HttpPut("{faceId}")]
-        public async Task<IActionResult> PutPerson(long personId, long faceId, Face face)
+        public async Task<IActionResult> PutFace(long personId, long faceId, FaceDto face)
         {
             if (faceId != face.Id || !_faceService.FaceExists(personId, faceId))
             {
@@ -79,7 +72,7 @@ namespace FacesTest.Controllers
         }
 
         [HttpDelete("{faceId}")]
-        public async Task<ActionResult<Face>> DeletePerson(long personId, long faceId)
+        public async Task<ActionResult<Face>> DeleteFace(long personId, long faceId)
         {
             if (_faceService.FaceExists(personId, faceId))
             {
@@ -94,25 +87,24 @@ namespace FacesTest.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Face>> PostFace(long personId, IFormFile face)
+        public async Task<ActionResult<Face>> PostFace(long personId, IFormFile filePicture)
         {
             if(_personService.PersonExists(personId))
             {
-                Face trueFace = new Face();
-                //Person person = new Person { Name = pvm.Name };
-                if (face != null)
+                Face face = new Face();
+                if (filePicture != null)
                 {
                     byte[] imageData = null;
-                    // считываем переданный файл в массив байтов
-                    using (var binaryReader = new BinaryReader(face.OpenReadStream()))
+                    // Reading the file into an array of bytes
+                    using (var binaryReader = new BinaryReader(filePicture.OpenReadStream()))
                     {
-                        imageData = binaryReader.ReadBytes((int)face.Length);
+                        imageData = binaryReader.ReadBytes((int)filePicture.Length);
                     }
-                    // установка массива байтов
-                    trueFace.Picture = imageData;
+                    // Setting a byte array to the Face instance 
+                    face.Picture = imageData;
                 }
-                var faceDto = await _faceService.PostFace(personId, trueFace);
-                return CreatedAtAction(nameof(GetFace), new { personId = trueFace.PersonId }, faceDto);
+                var faceDto = await _faceService.PostFace(personId, face);
+                return CreatedAtAction(nameof(GetFace), new { personId = face.PersonId }, faceDto);
             }
             return BadRequest();
         }

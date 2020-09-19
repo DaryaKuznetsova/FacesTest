@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace FacesTest.Services
@@ -32,15 +33,18 @@ namespace FacesTest.Services
             return await _context.People.Select(AsPersonDto).ToListAsync();
         }
 
-        public async Task<Person> GetPerson(long id)
+        public async Task<PersonDto> GetPerson(long id)
         {
-            var person = await _context.People.FindAsync(id);
-
+            var person = await _context.People.Select(AsPersonDto).FirstOrDefaultAsync(m => m.Id == id);
             return person;
         }
 
-        public async Task PutPerson(Person person)
+        public async Task PutPerson(PersonDto personDto)
         {
+            var person = await _context.People.FindAsync(personDto.Id);
+            person.Name = personDto.Name;
+            person.Surname = personDto.Surname;
+            person.MiddleName = personDto.MiddleName;
             _context.Entry(person).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
@@ -73,6 +77,16 @@ namespace FacesTest.Services
 
             }
             return person;
+        }
+
+        public async Task<PersonDto> FindPerson(byte[] face)
+        {
+            var foundFace = await _context.Faces.FirstOrDefaultAsync(x => x.Picture == face);
+            if (foundFace != null)
+            {
+                return await _context.People.Select(AsPersonDto).FirstOrDefaultAsync(p => p.Id == foundFace.PersonId);
+            }
+            else return null;
         }
     }
 }

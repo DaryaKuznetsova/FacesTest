@@ -42,6 +42,7 @@ namespace FacesTest.Services
 
         public async Task<FaceDto> GetFace(long personId, long faceId)
         {
+            // Both the personId and faceId must describe the correct data
             var face = await _context.Faces.Where(e => e.Id == faceId && e.PersonId == personId).Select(AsFaceDto).ToListAsync();
             if (face.Count != 0) return face[0]; else return null;
         }
@@ -54,8 +55,10 @@ namespace FacesTest.Services
             return FaceDto(face);
         }
 
-        public async Task PutFace(Face face)
+        public async Task PutFace(FaceDto faceDto)
         {
+            var face = await _context.Faces.FindAsync(faceDto.Id);
+            face.PersonId = faceDto.PersonId;
             _context.Entry(face).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
@@ -80,14 +83,6 @@ namespace FacesTest.Services
             return face;
         }
 
-        public async Task<Person> FindPerson(byte[] face)
-        {
-            var res = await _context.Faces.Where(x => x.Picture == face).ToListAsync();
-            if (res.Count != 0)
-            {
-                return await _context.People.FindAsync(res[0].PersonId);
-            }
-            else return null;
-        }
+
     }
 }
