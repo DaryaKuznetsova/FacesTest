@@ -1,7 +1,7 @@
 # FacesTest
 API позволяет выполнять CRUD операции с базой лиц людей.
 ## Описание запросов
-Скачать запросы можно по ссылке: https://www.getpostman.com/collections/74ab2f8541579ccdb47e
+Ссылка на запросы в Postman: https://www.getpostman.com/collections/74ab2f8541579ccdb47e
 ### Person
 **1. POST** api/person
 
